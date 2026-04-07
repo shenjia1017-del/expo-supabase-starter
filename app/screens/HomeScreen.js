@@ -1,12 +1,15 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { supabase } from '../../lib/supabase';
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen() {
+  const router = useRouter();
+
   const onSignOut = async () => {
     await supabase.auth.signOut();
-    navigation.replace('Login');
+    router.replace('/login');
   };
 
   return (
