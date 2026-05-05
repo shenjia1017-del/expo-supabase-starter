@@ -1,0 +1,49 @@
+# Cursor Rules for this project
+
+## Bug-fix protocol
+
+When there is a bug or error:
+1. Cursor must first attempt to fix it autonomously by reading the error, locating the root cause, and applying a fix — without asking the user first.
+2. Only if Cursor cannot resolve the issue after 2 attempts should the user consult Claude (in Claude.ai, the AI advisor outside Cursor) for guidance.
+3. Never ask the user to manually edit code to fix bugs — always apply the fix in the editor.
+4. Always verify the fix works by checking for remaining errors after each attempt.
+
+## Root cause first, code second
+
+Before changing any code:
+1. Read the relevant file(s) in full. Do not guess.
+2. Identify the root cause and state it clearly in plain English.
+3. Only then write the fix. No "patch on top of patch" style edits.
+4. Delete conflicting old code rather than leaving multiple coexisting logic paths.
+
+If a bug is not resolved after 2 attempts, stop patching and re-read the entire file from scratch before making a third change.
+
+## Forbidden patterns
+
+- Modifying code without reading it first
+- Adding new variables alongside conflicting old ones (creates dual-source-of-truth bugs)
+- Using useMemo/useCallback computed objects as useEffect dependencies (causes infinite loops)
+- Hardcoding paddingTop: 56/64/70 — always use useSafeAreaInsets() instead
+- Hardcoding hex colors — always import from lib/theme.js
+- Hardcoding spacing numbers — always use values from Spacing in lib/theme.js
+
+## Design system rules
+
+- All buttons that trigger primary actions must use components/PrimaryButton.js
+- All colors must come from Colors in lib/theme.js (no inline hex values)
+- All spacing must come from Spacing in lib/theme.js (xs/sm/md/lg/xl/xxl)
+- All radii must come from Radius in lib/theme.js (small/medium/large/button/pill)
+- Every screen must wrap content with useSafeAreaInsets() — never hardcode top padding
+
+## Git workflow reminders
+
+- After every completed feature, remind the user to commit via terminal (not Cursor's "Keep" button)
+- The 5-command pattern: branch → commit → push → merge → tag
+- Before any major change, create a feature branch first
+
+## Communication style
+
+- Reply in Chinese (the user is a Chinese-speaking solo developer)
+- Use the simplest possible language — assume no technical background
+- Provide copy-paste-ready instructions for the terminal when relevant
+- Make minimal changes — never refactor unrelated files while fixing a bug
