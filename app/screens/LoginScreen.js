@@ -2,26 +2,29 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
+import { Colors, Spacing, Radius, FontSize } from '../../lib/theme';
+import PrimaryButton from '../../components/PrimaryButton';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
     let isActive = true;
-
     (async () => {
       try {
         const { data } = await supabase.auth.getSession();
@@ -32,7 +35,6 @@ export default function LoginScreen() {
         // Ignore and allow user to manually login.
       }
     })();
-
     return () => {
       isActive = false;
     };
@@ -41,12 +43,10 @@ export default function LoginScreen() {
   const onLogin = async () => {
     const trimmedEmail = email.trim();
     const trimmedPassword = password;
-
     if (!trimmedEmail) {
       setErrorMsg('Please enter your email.');
       return;
     }
-
     if (!trimmedPassword) {
       setErrorMsg('Please enter your password.');
       return;
@@ -59,9 +59,7 @@ export default function LoginScreen() {
         email: trimmedEmail,
         password: trimmedPassword,
       });
-
       if (error) throw error;
-
       router.replace('/home');
     } catch (e) {
       setErrorMsg(e?.message ?? 'Failed to log in.');
@@ -71,46 +69,49 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>SpellSmart SG</Text>
-      <Text style={styles.subtitle}>Log in to your account</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: Colors.bgWhite }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <View style={[styles.container, { paddingTop: insets.top + Spacing.lg }]}>
+        <Text style={styles.title}>Welcome Back</Text>
+        <Text style={styles.subtitle}>Log in to your account</Text>
 
-      <Text style={styles.label}>Email</Text>
-      <TextInput
-        style={styles.input}
-        value={email}
-        autoCapitalize="none"
-        autoCorrect={false}
-        keyboardType="email-address"
-        placeholder="you@example.com"
-        onChangeText={setEmail}
-      />
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          style={styles.input}
+          value={email}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="email-address"
+          placeholder="you@example.com"
+          onChangeText={setEmail}
+        />
 
-      <Text style={styles.label}>Password</Text>
-      <TextInput
-        style={styles.input}
-        value={password}
-        autoCapitalize="none"
-        autoCorrect={false}
-        secureTextEntry
-        placeholder="Your password"
-        onChangeText={setPassword}
-      />
+        <Text style={styles.label}>Password</Text>
+        <TextInput
+          style={styles.input}
+          value={password}
+          autoCapitalize="none"
+          autoCorrect={false}
+          secureTextEntry
+          placeholder="Your password"
+          onChangeText={setPassword}
+        />
 
-      {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
+        {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
-      <TouchableOpacity style={styles.button} onPress={onLogin} disabled={loading}>
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={Colors.primary} style={{ marginVertical: Spacing.md }} />
         ) : (
-          <Text style={styles.buttonText}>Log In</Text>
+          <PrimaryButton title="Log In" onPress={onLogin} />
         )}
-      </TouchableOpacity>
 
-      <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/register')}>
-        <Text style={styles.linkText}>New here? Create an account</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/register')}>
+          <Text style={styles.linkText}>New here? Create an account</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -119,61 +120,48 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.xl,
   },
   title: {
-    fontSize: 32,
+    fontSize: FontSize.hero,
     fontWeight: 'bold',
-    color: '#4A90E2',
-    marginBottom: 10,
+    color: Colors.primary,
+    marginBottom: Spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 40,
+    fontSize: FontSize.large,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xxl,
   },
   label: {
     width: '100%',
-    fontSize: 14,
-    color: '#333',
-    marginBottom: 6,
+    fontSize: FontSize.medium,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
   },
   input: {
     width: '100%',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    marginBottom: 14,
-    backgroundColor: '#fff',
+    borderColor: Colors.border,
+    borderRadius: Radius.medium,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    fontSize: FontSize.large,
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.bgWhite,
   },
   errorText: {
     width: '100%',
-    color: '#d00',
-    marginBottom: 14,
-  },
-  button: {
-    backgroundColor: '#4A90E2',
-    width: '100%',
-    paddingVertical: 14,
-    borderRadius: 25,
-    alignItems: 'center',
-    marginBottom: 14,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    color: Colors.danger,
+    marginBottom: Spacing.md,
   },
   linkButton: {
-    paddingVertical: 8,
+    paddingVertical: Spacing.sm,
+    marginTop: Spacing.sm,
   },
   linkText: {
-    color: '#4A90E2',
-    fontSize: 14,
+    color: Colors.primary,
+    fontSize: FontSize.medium,
     fontWeight: '600',
   },
 });

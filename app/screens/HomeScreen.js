@@ -1,11 +1,14 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
+import { StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../../lib/supabase';
+import { Colors, Spacing, FontSize } from '../../lib/theme';
+import PrimaryButton from '../../components/PrimaryButton';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const onSignOut = async () => {
     await supabase.auth.signOut();
@@ -13,13 +16,12 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top + Spacing.lg }]}>
       <Text style={styles.title}>Welcome</Text>
       <Text style={styles.subtitle}>You are logged in with Supabase Auth.</Text>
-
-      <TouchableOpacity style={styles.button} onPress={onSignOut}>
-        <Text style={styles.buttonText}>Sign Out</Text>
-      </TouchableOpacity>
+      <View style={{ width: 250 }}>
+        <PrimaryButton title="Sign Out" variant="danger" onPress={onSignOut} />
+      </View>
     </View>
   );
 }
@@ -29,32 +31,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: Colors.bgWhite,
+    paddingHorizontal: Spacing.xl,
   },
   title: {
-    fontSize: 28,
+    fontSize: FontSize.title,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 40,
+    fontSize: FontSize.large,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xxl,
     textAlign: 'center',
-  },
-  button: {
-    backgroundColor: '#4A90E2',
-    paddingHorizontal: 40,
-    paddingVertical: 15,
-    borderRadius: 25,
-    marginBottom: 15,
-    width: 250,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
   },
 });
